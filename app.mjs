@@ -16,7 +16,7 @@ var app = express();
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'view')));
 
-let mongoc = new MongoClient('mongodb://127.0.0.1:27017');
+let mongoc = new MongoClient(process.env.MONGODB_URI);
 
 const swaggerOptions = {
   definition: {
@@ -40,8 +40,10 @@ app.get('/api-docs.json', (req, res) => {
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.listen(8080, () => {
+  console.log(111);
   console.log('server is running');
-});
+  console.log(process.env.MONGODB_URI);
+  });
 
 /**
  * @swagger
@@ -67,7 +69,7 @@ app.get('/', async (req, res) => {
  *         description: Successful response
  */
 app.get('/matches', async (req, res) => {
-  let dbo = mongoc.db('FIFA');
+  let dbo = mongoc.db('fifa');
   let result = await dbo.collection('Meczy').find().toArray();
   const htmlContent = await fs.readFile(path.join(__dirname, 'view', 'matchlist.html'), 'utf-8');
   const htmlWithScript = `
@@ -99,7 +101,7 @@ app.get('/matches', async (req, res) => {
  *         description: Successful response
  */
 app.get('/matches/:nameparam', async (req, res) => {
-  let dbo = mongoc.db('FIFA');
+  let dbo = mongoc.db('fifa');
   let condition = { $or: [{ kraj_defenders: req.params.nameparam }, { kraj_ataka: req.params.nameparam }] };
   let result = await dbo.collection('Meczy').find(condition).toArray();
   const htmlContent = await fs.readFile(path.join(__dirname, 'view', 'matchlist.html'), 'utf-8');
@@ -169,7 +171,7 @@ app.get('/addmatch', async (req, res) => {
  *                 country_guest_score: 1
  */
 app.post('/addmatch', async (req, res) => {
-  let dbo = mongoc.db('FIFA');
+  let dbo = mongoc.db('fifa');
   let result = await dbo.collection('Meczy').insertOne(req.body);
   console.log(req.body);
   res.end(JSON.stringify(req.body));
@@ -193,7 +195,7 @@ app.post('/addmatch', async (req, res) => {
  *         description: Successful response
  */
 app.delete('/matches/:nameparam', async (req, res) => {
-  let dbo = mongoc.db('FIFA');
+  let dbo = mongoc.db('fifa');
   let oid = { _id: new ObjectId(req.params.nameparam) };
   console.log(oid);
   let result = dbo.collection('Meczy').deleteMany(oid);
@@ -218,7 +220,7 @@ app.delete('/matches/:nameparam', async (req, res) => {
  *         description: Successful response
  */
 app.get('/updatematches/:nameparam', async (req, res) => {
-  let dbo = mongoc.db('FIFA');
+  let dbo = mongoc.db('fifa');
   let oid = { _id: new ObjectId(req.params.nameparam) };
   let result = await dbo.collection('Meczy').find(oid).toArray();
   const htmlContent = await fs.readFile(path.join(__dirname, 'view', 'updatematch.html'), 'utf-8');
@@ -282,7 +284,7 @@ app.get('/updatematches/:nameparam', async (req, res) => {
  *               country_guest_score: 1
  */
 app.put('/updatematches/:nameparam', async (req, res) => {
-  let dbo = mongoc.db('FIFA');
+  let dbo = mongoc.db('fifa');
   let id = { _id: new ObjectId(req.params.nameparam) };
 
   let updateDocument = {

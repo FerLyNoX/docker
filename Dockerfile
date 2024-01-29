@@ -7,4 +7,5 @@ COPY . .
 EXPOSE 8080
 RUN chown -R node /usr/src/app
 USER node
+
 CMD ["node", "app.mjs"]

@@ -1,12 +1,27 @@
 version: '3.4'
 
 services:
-  fifaproject:
-    image: fifaproject
+  web:
+    image: project
     build:
       context: .
       dockerfile: ./Dockerfile
     environment:
       NODE_ENV: production
+      MONGODB_URI: "mongodb://db:27017"
     ports:
       - 8080:8080
+    networks:
+      - project_net
+  db:
+    image: mongo:latest
+    container_name: db
+    ports:
+      - 27017:27017
+    networks:
+      - project_net
+  
+
+networks:
+  project_net:
+    driver: bridge
