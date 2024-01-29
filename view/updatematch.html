@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Match</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+       
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 400px;
+            margin: auto;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: #d3c719;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .back-button {
+            margin-top: 8rem;
+            margin-left: 50%;
+           transform: translate(-50%, 0);
+            background-color: #0011fc;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 18px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Edit Match</h1>
+    
+    <form id="editMatchForm">
+        <label for="data">Data meczu:</label>
+        <input type="text" id="data" name="data" required>
+
+        <label for="kraj_defenders">Kraj defenders:</label>
+        <input type="text" id="kraj_defenders" name="kraj_defenders" required>
+
+        <label for="kraj_ataka">Kraj ataka:</label>
+        <input type="text" id="kraj_ataka" name="kraj_ataka" required>
+
+        <label for="bramki_kraju_defenders">Bramki kraju defenders:</label>
+        <input type="number" id="bramki_kraju_defenders" name="bramki_kraju_defenders" required>
+
+        <label for="bramki_kraju_ataka">Bramki kraju ataka:</label>
+        <input type="number" id="bramki_kraju_ataka" name="bramki_kraju_ataka" required>
+
+        <button type="button" onclick="updateMatch(matchId)">Zmień dane meczu</button>
+    </form>
+
+    <a class="back-button" href="/matches">Back</a>
+
+    <script> 
+
+    var matchId = ""
+
+    async function populateForm() {
+        if (matchData) {
+            matchData.forEach(match => {
+                matchId = match._id;
+                document.getElementById('data').value = match.date;
+                document.getElementById('kraj_defenders').value = match.kraj_defenders;
+                document.getElementById('kraj_ataka').value = match.kraj_ataka;
+                document.getElementById('bramki_kraju_defenders').value = match.bramki_kraju_defenders;
+                document.getElementById('bramki_kraju_ataka').value = match.bramki_kraju_ataka;
+            }
+            )
+            } else {
+                console.error('Match data not available');
+            }
+    }
+
+    window.onload = populateForm;
+
+        async function updateMatch(matchId) {
+            const date = document.getElementById('data').value;
+            const countryHome = document.getElementById('kraj_defenders').value;
+            const countryGuest = document.getElementById('kraj_ataka').value;
+            const countryHomeScore = document.getElementById('bramki_kraju_defenders').value;
+            const countryGuestScore = document.getElementById('bramki_kraju_ataka').value;
+
+            try {
+                const response = await fetch(`/updatematches/${matchId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        date,
+                        kraj_defenders: countryHome,
+                        kraj_ataka: countryGuest,
+                        bramki_kraju_defenders: parseInt(countryHomeScore),
+                        bramki_kraju_ataka: parseInt(countryGuestScore),
+                    }),
+                });
+
+                if (response.ok) {
+                    window.location.href = '/matches';
+                } else {
+                    console.error('Failed to update match');
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>
